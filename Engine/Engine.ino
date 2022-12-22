@@ -4,10 +4,6 @@
 const uint8_t SERVO_PIN = D0;
 Servo servo;
 
-bool getFromSerial(int data) {
-  return Serial.available() > 0 && Serial.readString().toInt() == data;
-}
-
 void animateServo(int count, long delayMs, bool is90Degree = true) {
   if (count < 1) return;
   for (int i = 0; i < count; i++) {
@@ -33,9 +29,12 @@ void setup() {
 }
 
 void loop() {
-  // Handshake untuk arduino
-  if (getFromSerial(0)) animateServo(1, 500);
+  // Kalau bukan dari serial, skip
+  if (Serial.available() == 0) return;
 
-  // Muka diverifikasi
-  if (getFromSerial(1)) animateServo(1, 5000);
+  // Panggil serialnya di sini
+  switch (Serial.readString().toInt()) {
+    case 0: animateServo(5, 500); break;
+    case 1: animateServo(1, 5000); break; 
+  }
 }
