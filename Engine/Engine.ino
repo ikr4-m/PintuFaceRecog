@@ -22,7 +22,6 @@ void setup() {
   // Buka serial pembacaan data ke komputer
   Serial.begin(9600);
   Serial.setTimeout(1);
-  Serial.println(F("Receiving handshake."));
 
   // Konfigurasi LED
   pinMode(LED_BUILTIN, OUTPUT);

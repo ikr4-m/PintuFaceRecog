@@ -1,4 +1,8 @@
+# Konfigurasi
 .vscode
 **/.vscode
 .env
 **/.env
+
+# Dataset muka
+**/dataset
