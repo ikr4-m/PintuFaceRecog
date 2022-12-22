@@ -7,7 +7,7 @@ from decouple import config
 from serial import Serial
 
 # Buka serial arduino
-#arduino = Serial(port=config('ARDUINO_PORT_SERIAL'), baudrate=9600, timeout=.1)
+arduino = Serial(port=config('ARDUINO_PORT_SERIAL'), baudrate=9600, timeout=.1)
 
 # Final variabel
 DATASET_FOLDER_PATH = 'dataset'
@@ -43,6 +43,7 @@ name_list = [x.split(':')[0] for x in list(all_face_encodings.keys())]
 encode_image = np.array(list(all_face_encodings.values()))
 
 # Inisialisasi variabel untuk menjalankan OpenCV2
+arduino.write(bytes('0', 'utf-8'))
 video = cv2.VideoCapture(0)
 face_locations = []
 face_encodings = []
@@ -52,13 +53,6 @@ face_name_detected = []
 frame_count = 0
 print('Spawning CV2')
 
-
-"""
-Fungsi ini akan dijalankan apabila muka terdeteksi oleh sistem.
-Cara kerjanya, setelah dideteksi dengan frame waktu tertentu,
-sistem akan melakukan request ke server dan mengirim ID dataset
-ke webserver.
-"""
 def verify_face(name: str) -> any:
     if name == 'Unknown': return
     if name in face_name_detected: return
@@ -68,6 +62,7 @@ def verify_face(name: str) -> any:
     if dump_face_name[name] == SAFE_FRAME_COUNT:
         face_name_detected.append(name)
         del dump_face_name[name]
+        arduino.write(bytes('1', 'utf-8'))
 
 # Jalankan deteksi muka
 while True:
@@ -115,7 +110,7 @@ while True:
         cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
         font = cv2.FONT_HERSHEY_DUPLEX
         cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
-        #verify_face(name)
+        verify_face(name)
 
     cv2.imshow('Video', frame)
 

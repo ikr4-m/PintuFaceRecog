@@ -12,9 +12,9 @@ void animateServo(int count, long delayMs, bool is90Degree = true) {
   if (count < 1) return;
   for (int i = 0; i < count; i++) {
     if (i != 0) delay(delayMs);
-    servo.write(0);
-    delay(delayMs);
     servo.write(is90Degree ? 90 : 180);
+    delay(delayMs);
+    servo.write(0);
   }
 }
 
@@ -29,10 +29,13 @@ void setup() {
 
   // Konfigurasi Servo
   servo.attach(SERVO_PIN, 500, 2400);
-  servo.write(90);
+  servo.write(0);
 }
 
 void loop() {
   // Handshake untuk arduino
   if (getFromSerial(0)) animateServo(1, 500);
+
+  // Muka diverifikasi
+  if (getFromSerial(1)) animateServo(1, 5000);
 }
