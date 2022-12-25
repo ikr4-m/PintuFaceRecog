@@ -65,5 +65,6 @@ void loop() {
   switch (Serial.readString().toInt()) {
     case 0: animateServo(5, 500); break;
     case 1: unlockDoor(); break; 
+    case 2: animateBuzzer(10, 500); break;
   }
 }
