@@ -63,8 +63,11 @@ void loop() {
 
   // Panggil serialnya di sini
   switch (Serial.readString().toInt()) {
+    // Case: Handshake/Pinging Python ke Mikrokontroler
     case 0: animateServo(5, 500); break;
+    // Case: Buka pintu
     case 1: unlockDoor(); break; 
+    // Case: Intruders alert
     case 2: animateBuzzer(10, 500); break;
   }
 }
