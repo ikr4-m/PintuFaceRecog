@@ -5,6 +5,7 @@ import os
 import numpy as np
 from decouple import config
 from serial import Serial
+from math import floor
 
 # Buka serial arduino
 arduino = Serial(port=config('ARDUINO_PORT_SERIAL'), baudrate=9600, timeout=.1)
@@ -89,6 +90,14 @@ while True:
         # Reset frame ke 0 agar tidak terjadi overload data di RAM
         frame_count = 0
 
+        # Semisalnya user sudah keluar dari frame selama FRAME_SKIPPED, hapus dari list
+        for detected_name in list(face_name_detected):
+            if detected_name in face_names: continue
+            face_name_detected[detected_name] += 1
+            frame_loss = floor(FRAME_SKIPPED / FPS_PREDICTION)
+            if face_name_detected[detected_name] > frame_loss:
+                del face_name_detected[detected_name]
+
     # Kalau ada penyusup, trigger ini
     # Stop menghitung semisalnya udah lewat dari Unknown Alert 
     if "Unknown" in face_names:
@@ -125,7 +134,7 @@ while True:
         if name not in dump_face_name: dump_face_name[name] = 1
         else: dump_face_name[name] += 1
         if dump_face_name[name] == SAFE_FRAME_COUNT:
-            face_name_detected[name] = 1
+            face_name_detected[name] = 0
             del dump_face_name[name]
             arduino.write(bytes('1', 'utf-8'))
 
