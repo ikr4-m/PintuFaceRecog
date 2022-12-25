@@ -18,6 +18,8 @@ FRAME_SKIPPED = int(config('FACEREG_FRAME_SKIPPED'))
 SAFE_FRAME_COUNT = FRAME_SKIPPED * 3
 FPS_PREDICTION = int(config('FACEREG_FPS_PREDICTION'))
 UNKNOWN_FACE_ALERT = int(config('FACEREG_UNKNOWN_FACE_ALERT_TIME')) * FPS_PREDICTION
+ALLOW_UNKNOWN_FACE_WITH_DETECTED = int(config('FACEREG_ALLOW_UNKNOWN_FACE_WITH_DETECTED')) == 1
+DEBUG_MODE = int(config('FACEREG_DEBUG_MODE')) == 1
 
 # Buat dataset apabila belum ada di folder dataset
 if os.path.isfile(f'./{DATASET_FOLDER_PATH}/{DATASET_FILE_NAME}') != True:
@@ -99,8 +101,8 @@ while True:
                 del face_name_detected[detected_name]
 
     # Kalau ada penyusup, trigger ini
-    # Stop menghitung semisalnya udah lewat dari Unknown Alert 
-    if "Unknown" in face_names:
+    # Stop menghitung semisalnya udah lewat dari Unknown Alert dan di konfigurasi itu membolehkan
+    if "Unknown" in face_names and ALLOW_UNKNOWN_FACE_WITH_DETECTED == False:
         unknown_face_count += 1
 
     # Tampilkan alert
@@ -116,7 +118,7 @@ while True:
 
     # Tampilkan nama pemilik dataset muka
     for (top, right, bottom, left), name in zip(face_locations, face_names):
-        if name in face_name_detected: continue
+        if name in face_name_detected and DEBUG_MODE == False: continue
 
         top *= 4
         right *= 4
@@ -126,7 +128,9 @@ while True:
         cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
         cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
         font = cv2.FONT_HERSHEY_DUPLEX
-        cv2.putText(frame, name, (left + 6, bottom - 6), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 1)
+        cv2.putText(
+            frame, name + (" [D]" if DEBUG_MODE and name in face_name_detected else ""),
+            (left + 6, bottom - 6), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 1)
 
         # Daftarkan muka
         if name == "Unknown": continue
