@@ -1,5 +1,6 @@
 # Pengunci Pintu Otomatis Menggunakan Deteksi Wajah
 Projek ini merupakan prototipe penguncian pintu otomatis menggunakan deteksi wajah sebagai kunci untuk membuka pintu.
+
 *After this app is finalized, I'll translate all this project (even comment line in code) in English.*
 
 ## Stacks
