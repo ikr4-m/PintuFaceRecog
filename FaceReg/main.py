@@ -15,8 +15,8 @@ DATASET_FILE_NAME = config('FACEREG_DATASET_NAME')
 SAMPLING_FACE_JITTER = int(config('FACEREG_SAMPLING_JITTER'))
 FRAME_SKIPPED = int(config('FACEREG_FRAME_SKIPPED'))
 SAFE_FRAME_COUNT = FRAME_SKIPPED * 3
-# Asumsikan kamera di sini settingannya 24 FPS, ini sudah global
-UNKNOWN_FACE_ALERT = int(config('FACEREG_UNKNOWN_FACE_ALERT_TIME')) * 24
+FPS_PREDICTION = int(config('FACEREG_FPS_PREDICTION'))
+UNKNOWN_FACE_ALERT = int(config('FACEREG_UNKNOWN_FACE_ALERT_TIME')) * FPS_PREDICTION
 
 # Buat dataset apabila belum ada di folder dataset
 if os.path.isfile(f'./{DATASET_FOLDER_PATH}/{DATASET_FILE_NAME}') != True:
@@ -51,9 +51,10 @@ face_locations = []
 face_encodings = []
 face_names = []
 dump_face_name = {}
-face_name_detected = []
+face_name_detected = {}
 frame_count = 0
 unknown_face_count = 0
+print("Frame to detect Anonymous:", UNKNOWN_FACE_ALERT)
 print('Spawning CV2')
 
 # Jalankan deteksi muka
@@ -89,18 +90,20 @@ while True:
         frame_count = 0
 
     # Kalau ada penyusup, trigger ini
+    # Stop menghitung semisalnya udah lewat dari Unknown Alert 
     if "Unknown" in face_names:
         unknown_face_count += 1
 
-        # Tampilkan alert selama 5 detik
-        if unknown_face_count == UNKNOWN_FACE_ALERT + (5 * 24):
-            unknown_face_count = 0
+    # Tampilkan alert
+    if unknown_face_count == UNKNOWN_FACE_ALERT + (20 * FPS_PREDICTION):
+        unknown_face_count = 0
 
-        # Munculkan teks alert dan bunyikan buzzer di arduino
-        if unknown_face_count >= UNKNOWN_FACE_ALERT:
-            cv2.putText(frame, "Ada penyusup!", (0, 0), font, 1.0, (255, 255, 255), 1)
-            if unknown_face_count == UNKNOWN_FACE_ALERT:
-                arduino.write(bytes('2', 'utf-8'))
+    # Munculkan teks alert dan bunyikan buzzer di arduino
+    if unknown_face_count >= UNKNOWN_FACE_ALERT:
+        if unknown_face_count == UNKNOWN_FACE_ALERT:
+            arduino.write(bytes('2', 'utf-8'))
+        cv2.putText(frame, "Ada penyusup!", (0, 50), cv2.FONT_HERSHEY_SIMPLEX, 2.0, (0, 0, 255), 2)
+        unknown_face_count += 1
 
     # Tampilkan nama pemilik dataset muka
     for (top, right, bottom, left), name in zip(face_locations, face_names):
@@ -114,14 +117,15 @@ while True:
         cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
         cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
         font = cv2.FONT_HERSHEY_DUPLEX
-        cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
+        cv2.putText(frame, name, (left + 6, bottom - 6), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 1)
 
         # Daftarkan muka
+        if name == "Unknown": continue
         if name in face_name_detected: continue
         if name not in dump_face_name: dump_face_name[name] = 1
         else: dump_face_name[name] += 1
         if dump_face_name[name] == SAFE_FRAME_COUNT:
-            face_name_detected.append(name)
+            face_name_detected[name] = 1
             del dump_face_name[name]
             arduino.write(bytes('1', 'utf-8'))
 
