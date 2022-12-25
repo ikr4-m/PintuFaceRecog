@@ -65,10 +65,10 @@ while True:
     if frame_count % FRAME_SKIPPED == 0:
         small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
 
-        # Convert the image from BGR color (which OpenCV uses) to RGB color (which face_recognition uses)
+        # Ganti dari BGR ke RGB, alternatif dari cv2.BGR2RGB
         rgb_small_frame = small_frame[:, :, ::-1]
         
-        # Find all the faces and face encodings in the current frame of video
+        # Cari semua muka yang ada di kamera
         face_locations = face_recognition.face_locations(rgb_small_frame)
         face_encodings = face_recognition.face_encodings(rgb_small_frame, face_locations)
 
@@ -77,7 +77,7 @@ while True:
             matches = face_recognition.compare_faces(encode_image, face_encoding, tolerance=0.45)
             name = "Unknown"
 
-            # Use the known face with the smallest distance to the new face
+            # Ambil jarak muka terdekat dengan perbandingan dataset dan muka baru
             face_distances = face_recognition.face_distance(encode_image, face_encoding)
             best_match_index = np.argmin(face_distances)
             if matches[best_match_index]:
@@ -85,7 +85,7 @@ while True:
 
             face_names.append(name)
         
-        # Reset to 0 frame count so the int will not overloaded
+        # Reset frame ke 0 agar tidak terjadi overload data di RAM
         frame_count = 0
 
     # Kalau ada penyusup, trigger ini
@@ -102,9 +102,8 @@ while True:
             if unknown_face_count == UNKNOWN_FACE_ALERT:
                 arduino.write(bytes('2', 'utf-8'))
 
-    # Display the results
+    # Tampilkan nama pemilik dataset muka
     for (top, right, bottom, left), name in zip(face_locations, face_names):
-        #if name == "Unknown": continue
         if name in face_name_detected: continue
 
         top *= 4
