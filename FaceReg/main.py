@@ -15,6 +15,8 @@ DATASET_FILE_NAME = config('FACEREG_DATASET_NAME')
 SAMPLING_FACE_JITTER = int(config('FACEREG_SAMPLING_JITTER'))
 FRAME_SKIPPED = int(config('FACEREG_FRAME_SKIPPED'))
 SAFE_FRAME_COUNT = FRAME_SKIPPED * 3
+# Asumsikan kamera di sini settingannya 24 FPS, ini sudah global
+UNKNOWN_FACE_ALERT = int(config('FACEREG_UNKNOWN_FACE_ALERT_TIME')) * 24
 
 # Buat dataset apabila belum ada di folder dataset
 if os.path.isfile(f'./{DATASET_FOLDER_PATH}/{DATASET_FILE_NAME}') != True:
@@ -51,18 +53,8 @@ face_names = []
 dump_face_name = {}
 face_name_detected = []
 frame_count = 0
+unknown_face_count = 0
 print('Spawning CV2')
-
-def verify_face(name: str) -> any:
-    if name == 'Unknown': return
-    if name in face_name_detected: return
-
-    if name not in dump_face_name: dump_face_name[name] = 1
-    else: dump_face_name[name] += 1
-    if dump_face_name[name] == SAFE_FRAME_COUNT:
-        face_name_detected.append(name)
-        del dump_face_name[name]
-        arduino.write(bytes('1', 'utf-8'))
 
 # Jalankan deteksi muka
 while True:
@@ -96,6 +88,20 @@ while True:
         # Reset to 0 frame count so the int will not overloaded
         frame_count = 0
 
+    # Kalau ada penyusup, trigger ini
+    if "Unknown" in face_names:
+        unknown_face_count += 1
+
+        # Tampilkan alert selama 5 detik
+        if unknown_face_count == UNKNOWN_FACE_ALERT + (5 * 24):
+            unknown_face_count = 0
+
+        # Munculkan teks alert dan bunyikan buzzer di arduino
+        if unknown_face_count >= UNKNOWN_FACE_ALERT:
+            cv2.putText(frame, "Ada penyusup!", (0, 0), font, 1.0, (255, 255, 255), 1)
+            if unknown_face_count == UNKNOWN_FACE_ALERT:
+                arduino.write(bytes('2', 'utf-8'))
+
     # Display the results
     for (top, right, bottom, left), name in zip(face_locations, face_names):
         #if name == "Unknown": continue
@@ -110,7 +116,15 @@ while True:
         cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
         font = cv2.FONT_HERSHEY_DUPLEX
         cv2.putText(frame, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
-        verify_face(name)
+
+        # Daftarkan muka
+        if name in face_name_detected: continue
+        if name not in dump_face_name: dump_face_name[name] = 1
+        else: dump_face_name[name] += 1
+        if dump_face_name[name] == SAFE_FRAME_COUNT:
+            face_name_detected.append(name)
+            del dump_face_name[name]
+            arduino.write(bytes('1', 'utf-8'))
 
     cv2.imshow('Video', frame)
 
