@@ -1,6 +1,8 @@
 # Pengunci Pintu Otomatis Menggunakan Deteksi Wajah
 Projek ini merupakan prototipe penguncian pintu otomatis menggunakan deteksi wajah sebagai kunci untuk membuka pintu.
 
+*Demo coming soon.*
+
 ## Stacks
 - Python 3.10.x
 - Arduino NodeMCU ESP8266 LoLin
@@ -25,6 +27,40 @@ Projek ini merupakan prototipe penguncian pintu otomatis menggunakan deteksi waj
 | G | GND (Right) | Grounding Buzzer & Push Button |
 | VIN | 5V | Powering Servo |
 | G | GND (Left) | Grounding Servo |
+
+## How to Use
+1. Seperti biasa, rakit arduino [berdasarkan lokasi pin yang sudah disediakan](#pin-location-arduino).
+2. Install seluruh dependensi untuk [Arduino](#dependency-arduino) dan [Python](#dependency-python).
+3. Build dan Upload `./Engine` menggunakan Arduino IDE dengan konfigurasi beriut:
+    - Board: NodeMCU v1.0 (ESP-12E Module) / LOLIN(WEMOS) D1 R1
+    - USB COM: Sesuaikan dengan port komputer masing-masing
+    - Target: `Engine.ino`
+4. (Opsional/Worst Case) Semisal ada hal yang aneh terjadi setelah upload file ke Arduino, tekan Reset 1x. Ditandai dengan Servo bergetar dan Buzzer menyala sebentar.
+5. Copy `.env.example` menjadi `.env` dan buat folder bernama `dataset`. Atau kalian bisa menggunakan command di bawah ini (khusus Linux):
+```sh
+cd ./FaceReg
+cp .env.example .env
+mkdir dataset
+```
+6. Masukkan muka anda dengan struktur folder di bawah ini:
+```
+├── dataset
+│   ├── NamaOrang1
+│   │   ├── 1.jpg
+│   │   ├── 2.jpg
+│   │   └── 3.jpg
+│   └── NamaOrang2
+│       ├── 1.jpg
+│       ├── 2.jpg
+│       └── 3.jpg
+```
+Jumlah foto yang dimasukkan tergantung foto yang anda gunakan, semakin banyak semakin bagus. Rekomendasi foto yang dimasukkan adalah minimal 3 foto dengan ekspersi berbeda-beda. Ekstensi file yang direkomendasikan adalah `.jpg` dan `.png`
+
+7. Konfigurasi file `.env` yang dicopy tadi sesuai dengan kebutuhan.
+8. Pastikan konteks direktori anda berada di folder `./FaceReg` dan jalankan aplikasi pendeteksi muka dengan command di bawah ini:
+```sh
+py main.py
+```
 
 ### Arduino VSCode Fix
 Kadang kala, error yang terjadi saat menggunakan Arduino IDE di VSCode itu adalah mereka tidak bisa membaca file `.ino` apabila filenya dipisah. Untuk memperbaikinya, cari file `.vscode/c_cpp_properties.json` kemudian tambahkan semua yang ada di bawah ini:
