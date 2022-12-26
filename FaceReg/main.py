@@ -55,7 +55,7 @@ encode_image = np.array(list(all_face_encodings.values()))
 
 # Inisialisasi variabel untuk menjalankan OpenCV2
 arduino.write(bytes('0', 'utf-8'))
-video = cv2.VideoCapture(0)
+video = cv2.VideoCapture(int(config('OPENCV2_CAMERA_ID', 0)))
 face_locations = []
 face_encodings = []
 face_names = []
