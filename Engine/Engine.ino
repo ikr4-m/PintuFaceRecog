@@ -13,10 +13,6 @@ void setup() {
   Serial.begin(9600);
   Serial.setTimeout(1);
 
-  // Konfigurasi LED
-  pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, HIGH);
-
   // Konfigurasi Servo
   servo.attach(SERVO_PIN, 500, 2400);
   servo.write(0);
