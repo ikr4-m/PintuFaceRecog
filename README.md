@@ -18,6 +18,24 @@ Projek ini merupakan prototipe penguncian pintu otomatis menggunakan deteksi waj
 - [NumPy](https://github.com/numpy/numpy)
 - [Python Decouple](https://github.com/HBNetwork/python-decouple)
 
+## How It Works?
+![stack_arch](./Picture/stack_arch.png "Arsitektur Stacks")
+### Arduino
+Arduino hanya menerima data dari aplikasi deteksi muka berupa data `uint32` dari Serial Communication yang mana akan diteruskan ke Servo yang bekerja sebagai engsel otomatis dari pintu.
+
+Adapun buzzer di sini digunakan sebagai pemanis/penanda dari setiap aksi yang dilakukan entah ada penyusup, menerima ping dari aplikasi, ataupun membuka pintu.
+
+Push Button di sini digunakan untuk membuka pintu secara manual. Diibaratkan sebagai "pegangan pintu manual" di sisi lain dari ruangan.
+
+### Face Recognition App
+OpenCV dan face_recognition mempunyai banyak andil dalam proses ini. OpenCV digunakan sebagai alat bantu face_recognition untuk merender frame yang terjadi dari webcam yang mana setiap ada aksi akan dikirimkan ke PySerial.
+
+face_recognition di sini digunakan untuk membaca dan membuat *encoded dataset* yang berbentuk NumPy Array. Library ini juga digunakan sebagai alat bantu untuk menentukan posisi kordinat muka pada webcam yang dikirim oleh OpenCV.
+
+PySerial digunakan untuk mengirim data ke NodeMCU dengan frekuensi 9600 baud. Data yang dikirim hanya berkisar sekitar 8 bit saja untuk meningkatkan performa pengiriman data ke mikrokontroler.
+
+Dikarenakan library requests dari Python melakukan blocking ke aplikasi yang berdampak aplikasi akan hang dikarenakan menunggu hasil upload gambar ke Telegram Endpoint, kegiatan requests dipisah menjadi satu Thread yang akan hangus apabila proses requests tersebut selesai sehingga tidak mengganggu proses deteksi muka. Pemisahan Thread juga berguna apabila terjadi massive upload dari aplikasi ini karena tidak mengganggu thread utama yang mana bertugas untuk mendeteksi muka.
+
 ## Pin Location (Arduino)
 | Pin | GPI | Target |
 |-----|-----|--------|
