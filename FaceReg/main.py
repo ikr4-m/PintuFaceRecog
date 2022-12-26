@@ -106,6 +106,32 @@ while True:
             if face_name_detected[detected_name] > frame_loss:
                 del face_name_detected[detected_name]
 
+    # Tampilkan nama pemilik dataset muka
+    for (top, right, bottom, left), name in zip(face_locations, face_names):
+        if name in face_name_detected and DEBUG_MODE == False: continue
+
+        top *= 4
+        right *= 4
+        bottom *= 4
+        left *= 4
+
+        cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
+        cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
+        font = cv2.FONT_HERSHEY_DUPLEX
+        cv2.putText(
+            frame, name + (" [D]" if DEBUG_MODE and name in face_name_detected else ""),
+            (left + 6, bottom - 6), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 1)
+
+        # Daftarkan muka
+        if name == "Unknown": continue
+        if name in face_name_detected: continue
+        if name not in dump_face_name: dump_face_name[name] = 1
+        else: dump_face_name[name] += 1
+        if dump_face_name[name] == SAFE_FRAME_COUNT:
+            face_name_detected[name] = 0
+            del dump_face_name[name]
+            arduino.write(bytes('1', 'utf-8'))
+
     # Kalau ada penyusup, trigger ini
     # Stop menghitung semisalnya udah lewat dari Unknown Alert dan di konfigurasi itu membolehkan
     if "Unknown" in face_names and ALLOW_UNKNOWN_FACE_WITH_DETECTED == False:
@@ -135,32 +161,6 @@ while True:
             # grequests.post(TELEGRAM_URL, data=data, files={"photo": BufferedReader(image_buffer)})
         cv2.putText(frame, "Ada penyusup!", (0, 50), cv2.FONT_HERSHEY_SIMPLEX, 2.0, (0, 0, 255), 2)
         unknown_face_count += 1
-
-    # Tampilkan nama pemilik dataset muka
-    for (top, right, bottom, left), name in zip(face_locations, face_names):
-        if name in face_name_detected and DEBUG_MODE == False: continue
-
-        top *= 4
-        right *= 4
-        bottom *= 4
-        left *= 4
-
-        cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
-        cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), cv2.FILLED)
-        font = cv2.FONT_HERSHEY_DUPLEX
-        cv2.putText(
-            frame, name + (" [D]" if DEBUG_MODE and name in face_name_detected else ""),
-            (left + 6, bottom - 6), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 1)
-
-        # Daftarkan muka
-        if name == "Unknown": continue
-        if name in face_name_detected: continue
-        if name not in dump_face_name: dump_face_name[name] = 1
-        else: dump_face_name[name] += 1
-        if dump_face_name[name] == SAFE_FRAME_COUNT:
-            face_name_detected[name] = 0
-            del dump_face_name[name]
-            arduino.write(bytes('1', 'utf-8'))
 
     cv2.imshow('Video', frame)
 
