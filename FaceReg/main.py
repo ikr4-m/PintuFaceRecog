@@ -134,8 +134,11 @@ while True:
 
     # Kalau ada penyusup, trigger ini
     # Stop menghitung semisalnya udah lewat dari Unknown Alert dan di konfigurasi itu membolehkan
-    if "Unknown" in face_names and ALLOW_UNKNOWN_FACE_WITH_DETECTED == False:
-        unknown_face_count += 1
+    if "Unknown" in face_names:
+        if ALLOW_UNKNOWN_FACE_WITH_DETECTED == False:
+            unknown_face_count += 1
+        if len(list(filter(lambda x: x != "Unknown", face_names))) < 1 and ALLOW_UNKNOWN_FACE_WITH_DETECTED == True:
+            unknown_face_count += 1
 
     # Tampilkan alert
     if unknown_face_count == UNKNOWN_FACE_ALERT + (20 * FPS_PREDICTION):
