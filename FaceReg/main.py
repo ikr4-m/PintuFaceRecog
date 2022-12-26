@@ -1,14 +1,20 @@
+from io import BufferedReader, BytesIO
 import cv2
 import face_recognition
 import pickle
 import os
 import numpy as np
+import threading
+import requests
 from decouple import config
 from serial import Serial
 from math import floor
 
 # Buka serial arduino
 arduino = Serial(port=config('ARDUINO_PORT_SERIAL'), baudrate=9600, timeout=.1)
+
+# Masukkan telegram API URL
+TELEGRAM_URL = f'https://api.telegram.org/bot{config("TELEGRAM_TOKEN")}/sendPhoto'
 
 # Final variabel
 DATASET_FOLDER_PATH = 'dataset'
@@ -113,6 +119,20 @@ while True:
     if unknown_face_count >= UNKNOWN_FACE_ALERT:
         if unknown_face_count == UNKNOWN_FACE_ALERT:
             arduino.write(bytes('2', 'utf-8'))
+            small_frame = cv2.resize(frame, (0, 0), fx=0.5, fy=0.5)
+            data = {"chat_id": config('TELEGRAM_USER_ID'), "caption": "Ada penyusup!"}
+            image_buffer = BytesIO(cv2.imencode('.jpg', small_frame)[1].tobytes())
+            image_buffer.name = 'img.jpg'
+            
+            # Untelegraphed ghost threading
+            # Since asyncio is trash to handle the "non return nonblock", we just make
+            # a simple Thread.start() to a function
+            def send_data_to_telegram():
+                requests.post(TELEGRAM_URL, data=data, files={"photo": BufferedReader(image_buffer)})
+            x = threading.Thread(target=send_data_to_telegram)
+            x.start()
+
+            # grequests.post(TELEGRAM_URL, data=data, files={"photo": BufferedReader(image_buffer)})
         cv2.putText(frame, "Ada penyusup!", (0, 50), cv2.FONT_HERSHEY_SIMPLEX, 2.0, (0, 0, 255), 2)
         unknown_face_count += 1
 
