@@ -1,6 +1,8 @@
 # Pengunci Pintu Otomatis Menggunakan Deteksi Wajah
 Projek ini merupakan prototipe penguncian pintu otomatis menggunakan deteksi wajah sebagai kunci untuk membuka pintu.
 
+Harap dibaca [peringatan](#disclaimer) di bawah sebelum mengambil aplikasi ini sebagai sampel penelitian.
+
 Video demo bisa dilihat [di sini](https://www.youtube.com/watch?v=pn_35tyxcB4).
 
 ## Stacks
@@ -90,5 +92,8 @@ Kadang kala, error yang terjadi saat menggunakan Arduino IDE di VSCode itu adala
     "${workspaceFolder}\\Engine\\animate.ino"
 ]
 ```
+
+### Disclaimer
+Aplikasi ini tidak bisa digunakan sebagai skripsi karena sudah didaftarkan sebagai judul Aplikasi Profesional dan TA Konsentrasi di Universtias Dipa Makassar.
 
 *(C) 2022 - Ikramullah. Protected with Open Source License. All rights reserved.*
