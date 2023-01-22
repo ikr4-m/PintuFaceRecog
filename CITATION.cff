@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+title: Prototipe Pintu Otomatis Menggunakan Deteksi Muka
+message: >-
+  Prototipe pintu otomatis dari Arduino/NodeMCU menggunakan deteksi muka
+  dari OpenCV dan dlib.
+type: software
+authors:
+  - given-names: Ikramullah
+    family-names: Ikramullah
+    email: ikramullahzx@gmail.com
