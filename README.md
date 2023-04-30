@@ -94,6 +94,6 @@ Kadang kala, error yang terjadi saat menggunakan Arduino IDE di VSCode itu adala
 ```
 
 ### Disclaimer
-Aplikasi ini tidak bisa digunakan sebagai skripsi karena sudah didaftarkan sebagai judul Aplikasi Profesional dan TA Konsentrasi di Universtias Dipa Makassar.
+Aplikasi ini dapat dijadikan sebagai bahan skripsi atau penelitian dengan penambahan hal baru sebab telah terdaftar sebagai judul Aplikasi Profesional dan Tugas Akhir Konsentrasi di Universtias Dipa Makassar.
 
 *(C) 2022 - Ikramullah. Protected with Open Source License. All rights reserved.*
